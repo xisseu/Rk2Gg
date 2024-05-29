@@ -1,34 +1,55 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "Circle.h"
+#include "Point.h"
+#include <string>
 
-class MockCircle : public Circle {
-public:
-    MOCK_METHOD(double, radius, (), (const, override));
-    MOCK_METHOD(Point, center, (), (const, override));
-};
 
-TEST(CircleTest, GetRadius) {
-    MockCircle circle;
-    EXPECT_CALL(circle, radius()).WillOnce(testing::Return(5.0));
-    EXPECT_EQ(circle.radius(), 5.0);
+
+TEST(Fan, SetCircuitTringle) {
+    Fan fan;
+    
+    testing::internal::CaptureStdout();
+    fan.SetCircuitTringle();
+    std::string output = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(output, "SetPower In Tringle toplogy circuit\n");
+    
+    testing::internal::CaptureStdout();
+    fan.SetCircuitStar();
+    output = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(output, "SetPower In star toplogy circuit\n");
+    
+    testing::internal::CaptureStdout();
+    fan.ConnectPower();
+    output = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(output, "Connect Power\n");
+    
+    testing::internal::CaptureStdout();
+    fan.DisconnectPower();
+    output = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(output, "Disconnect Power\n");
+    
+    testing::internal::CaptureStdout();
+    fan.Delay(2000);
+    output = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(output, "wait for 2000 miliseconds\n");
 }
 
-TEST(CircleTest, GetCenter) {
-    MockCircle circle;
-    Point center{3.0, 4.0};
-    EXPECT_CALL(circle, center()).WillOnce(testing::Return(center));
-    EXPECT_EQ(circle.center().x, 3.0);
-    EXPECT_EQ(circle.center().y, 4.0);
+TEST(Controller, TurnOnFanCommand) {
+    Controller controller;
+    Fan fan;
+    controller.SetCommand(new TurnOnFanCommand(&fan));
+    testing::internal::CaptureStdout();
+    controller.ButtonClicked();
+    std::string output = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(output, "SetPower In star toplogy circuit\nConnect Power\nwait for 20000 miliseconds\nSetPower In Tringle toplogy circuit\n");
 }
 
-TEST(CircleTest, Constructor) {
-    const double radius = 10.0;
-    MockCircle circle(radius);
-    EXPECT_EQ(circle.radius(), radius);
-}
-
-int main(int argc, char** argv) {
-    ::testing::InitGoogleMock(&argc, argv);
-    return RUN_ALL_TESTS();
+TEST(Controller, TurnOffFanCommand) {
+    Controller controller;
+    Fan fan;
+    controller.SetCommand(new TurnOnFanCommand(&fan));
+    testing::internal::CaptureStdout();
+    controller.ButtonClicked();
+    std::string output = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(output, "SetPower In star toplogy circuit\nConnect Power\nwait for 20000 miliseconds\nSetPower In Tringle toplogy circuit\n");
 }
